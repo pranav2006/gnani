@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: gnani-postgres
+    environment:
+      POSTGRES_USER: gnani
+      POSTGRES_PASSWORD: gnani
+      POSTGRES_DB: audio_notes
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: gnani-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

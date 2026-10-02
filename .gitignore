@@ -1,0 +1,11 @@
+.env
+.env.local
+venv/
+__pycache__/
+backend/storage/
+backend/temp/
+node_modules/
+.next/
+*.mp3
+*.wav
+.run/
