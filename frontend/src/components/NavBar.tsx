@@ -8,7 +8,7 @@ import { GitHubIcon, LogoIcon } from "./Icons";
 import { API_URL, GITHUB_URL } from "@/lib/api";
 
 const TABS = [
-  { href: "/", label: "Studio", match: (p: string) => p === "/" || p.startsWith("/uploads") },
+  { href: "/studio", label: "Studio", match: (p: string) => p.startsWith("/studio") || p.startsWith("/uploads") },
   { href: "/pricing", label: "Pricing", match: (p: string) => p.startsWith("/pricing") },
   { href: "/architecture", label: "Architecture", match: (p: string) => p.startsWith("/architecture") },
 ];

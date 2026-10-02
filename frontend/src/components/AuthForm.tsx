@@ -7,11 +7,12 @@ import { useAuth } from "./AuthProvider";
 import Waveform from "./Waveform";
 import { AlertIcon, LogoIcon } from "./Icons";
 
+// After login go back to where the user was sent from, or the studio.
 // Only follow ?next= if it is a path on this site. "//evil.com" or a
 // full URL would otherwise turn the login page into an open redirect.
 function safeNext(): string {
   const next = new URLSearchParams(window.location.search).get("next");
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/studio";
 }
 
 export default function AuthForm({ mode }: { mode: "login" | "signup" }) {

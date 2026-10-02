@@ -91,7 +91,7 @@ function UploadView() {
   if (!upload) {
     return (
       <div className="space-y-4">
-        <Link href="/" className="text-sm font-medium text-brand-600 hover:underline">
+        <Link href="/studio" className="text-sm font-medium text-brand-600 hover:underline">
           ← Back to studio
         </Link>
         {loadError ? (
@@ -114,7 +114,7 @@ function UploadView() {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Link href="/" className="text-sm font-medium text-brand-600 hover:underline">
+        <Link href="/studio" className="text-sm font-medium text-brand-600 hover:underline">
           ← Back to studio
         </Link>
         {connectionLost && (

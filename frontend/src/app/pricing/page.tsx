@@ -34,7 +34,7 @@ export default function PricingPage() {
     try {
       await upgradePlan();
       await refreshUser();
-      router.push("/");
+      router.push("/studio");
     } catch (e) {
       setError((e as Error).message);
       setUpgrading(false);
