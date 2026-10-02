@@ -37,8 +37,10 @@ LOCAL_STORAGE_DIR = os.getenv("LOCAL_STORAGE_DIR", "storage")
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "500"))
 
 # Comma separated list of frontend origins allowed to call the API.
+# Browsers send the Origin without a trailing slash, so strip any here;
+# "https://x.vercel.app/" would otherwise never match.
 CORS_ORIGINS = [
-    origin.strip()
+    origin.strip().rstrip("/")
     for origin in os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
     if origin.strip()
 ]
