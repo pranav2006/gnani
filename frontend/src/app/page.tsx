@@ -1,3 +1,4 @@
+import RequireAuth from "@/components/RequireAuth";
 import UploadForm from "@/components/UploadForm";
 import UploadList from "@/components/UploadList";
 import Waveform from "@/components/Waveform";
@@ -19,13 +20,15 @@ export default function StudioHome() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
-        <div>
-          <UploadForm />
-        </div>
+      <RequireAuth>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+          <div>
+            <UploadForm />
+          </div>
 
-        <UploadList />
-      </div>
+          <UploadList />
+        </div>
+      </RequireAuth>
     </div>
   );
 }

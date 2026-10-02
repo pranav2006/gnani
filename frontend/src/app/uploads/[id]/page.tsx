@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import AudioPlayer from "@/components/AudioPlayer";
 import PipelineCard from "@/components/PipelineCard";
+import RequireAuth from "@/components/RequireAuth";
 import ResultsPanel from "@/components/ResultsPanel";
 import UploadForm from "@/components/UploadForm";
 import { AlertIcon } from "@/components/Icons";
@@ -13,6 +14,14 @@ import { type UploadDetail, getUpload, isTerminal, retryUpload } from "@/lib/api
 const POLL_MS = 2500;
 
 export default function UploadPage() {
+  return (
+    <RequireAuth>
+      <UploadView />
+    </RequireAuth>
+  );
+}
+
+function UploadView() {
   const { id } = useParams<{ id: string }>();
   const [upload, setUpload] = useState<UploadDetail | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);

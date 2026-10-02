@@ -240,6 +240,30 @@ curl -X POST "${API_URL}/uploads/<id>/retry"`;
         </ul>
       </Card>
 
+      <Card eyebrow="Accounts" title="Login and the free-plan limit">
+        <p>
+          Users sign up with email and password. Passwords are hashed with <b>bcrypt</b> (salted and deliberately slow)
+          and never stored. Login returns a <b>JWT</b> signed with a server secret that holds the user id and a 7-day
+          expiry; the frontend keeps it in <code>localStorage</code> and sends it as{" "}
+          <code>Authorization: Bearer</code> on every request. The audio player is the exception: an{" "}
+          <code>&lt;audio src&gt;</code> request can&apos;t carry headers, so that one endpoint also accepts the token
+          as a query parameter.
+        </p>
+        <p>
+          Every upload row has a <code>user_id</code>. All upload endpoints filter by the logged-in user, and someone
+          else&apos;s upload returns the same 404 as a missing one, so ids can&apos;t be probed. The login page shows
+          one message for &quot;unknown email&quot; and &quot;wrong password&quot; for the same reason.
+        </p>
+        <p>
+          The free plan allows 10 uploads. The API checks the count before receiving the file (to fail fast), then
+          again while holding a row lock on the user (<code>SELECT … FOR UPDATE</code>) right before inserting, so two
+          simultaneous uploads can&apos;t both slip past the limit. Over the limit the API answers{" "}
+          <code>402 Payment Required</code> and the UI swaps the upload card for an upgrade prompt. Retries don&apos;t
+          count. The Pro upgrade is a <b>demo</b>: it flips the plan without taking payment. With a real provider the
+          plan would only change from the provider&apos;s payment webhook.
+        </p>
+      </Card>
+
       <Card eyebrow="Next steps" title="What I'd do differently with more time">
         <ul className="ml-5 list-disc space-y-1.5">
           <li>
@@ -260,8 +284,12 @@ curl -X POST "${API_URL}/uploads/<id>/retry"`;
             <b>Partial results</b> on <code>PARTIAL_FAILURE</code>: keep the successful chunks and mark the gaps.
           </li>
           <li>
-            Alembic migrations instead of <code>create_all</code>, user accounts, speaker diarization, a reaper for rows
-            stuck in a running state, and tests around transcript stitching.
+            <b>Real payments</b> (Razorpay checkout + webhook) instead of the demo upgrade button, and email
+            verification / password reset for accounts.
+          </li>
+          <li>
+            Alembic migrations instead of <code>create_all</code> plus a startup <code>ALTER TABLE</code>, speaker
+            diarization, a reaper for rows stuck in a running state, and tests around transcript stitching.
           </li>
         </ul>
       </Card>

@@ -6,6 +6,7 @@ from sqlalchemy import (
     BigInteger,
     DateTime,
     Float,
+    ForeignKey,
     Integer,
     String,
     Text,
@@ -29,6 +30,46 @@ FAILED = "FAILED"
 
 TERMINAL_STATUSES = {COMPLETED, FAILED}
 
+# Subscription plans.
+PLAN_FREE = "free"
+PLAN_PRO = "pro"
+
+
+class User(Base):
+
+    __tablename__ = "users"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+    )
+
+    # Stored lower-cased so "A@x.com" and "a@x.com" are one account.
+    email: Mapped[str] = mapped_column(
+        String(255),
+        unique=True,
+        index=True,
+        nullable=False,
+    )
+
+    # bcrypt hash (includes its own salt). The password itself is never stored.
+    password_hash: Mapped[str] = mapped_column(
+        String(255),
+        nullable=False,
+    )
+
+    plan: Mapped[str] = mapped_column(
+        String(20),
+        default=PLAN_FREE,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+    )
+
 
 class AudioUpload(Base):
 
@@ -38,6 +79,15 @@ class AudioUpload(Base):
         UUID(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
+    )
+
+    # Nullable only because uploads made before accounts existed have no
+    # owner; every new upload sets it. Ownerless rows are visible to no one.
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        index=True,
+        nullable=True,
     )
 
     filename: Mapped[str] = mapped_column(

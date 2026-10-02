@@ -1,16 +1,18 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "./AuthProvider";
 import Waveform from "./Waveform";
-import { AlertIcon, UploadIcon } from "./Icons";
-import { ALLOWED_EXTENSIONS, LANGUAGES, MAX_UPLOAD_MB, formatBytes, formatDuration, uploadFile } from "@/lib/api";
+import { AlertIcon, SparklesIcon, UploadIcon } from "./Icons";
+import { ALLOWED_EXTENSIONS, ApiError, LANGUAGES, MAX_UPLOAD_MB, formatBytes, formatDuration, uploadFile } from "@/lib/api";
 
 type Phase =
   | { kind: "idle" }
   | { kind: "uploading"; fraction: number; bytesPerSecond: number }
   | { kind: "processing" } // bytes sent, server is validating + saving to bucket
-  | { kind: "error"; message: string };
+  | { kind: "error"; message: string; limitReached?: boolean };
 
 function validate(file: File): string | null {
   const ext = file.name.slice(file.name.lastIndexOf(".")).toLowerCase();
@@ -24,6 +26,7 @@ function validate(file: File): string | null {
 
 export default function UploadForm({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
+  const { user, refreshUser } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<(() => void) | null>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -57,15 +60,23 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
 
     try {
       const upload = await promise;
+      refreshUser(); // update the "x / 10 uploads" counter
       router.push(`/uploads/${upload.id}`);
     } catch (e) {
-      setPhase({ kind: "error", message: (e as Error).message });
+      const limitReached = e instanceof ApiError && e.status === 402;
+      if (limitReached) refreshUser();
+      setPhase({ kind: "error", message: (e as Error).message, limitReached });
     } finally {
       abortRef.current = null;
     }
   }
 
   const openPicker = () => !busy && inputRef.current?.click();
+
+  const limit = user?.upload_limit ?? null;
+  const used = user?.uploads_used ?? 0;
+
+  if (limit != null && used >= limit && !busy) return <LimitReached limit={limit} />;
 
   return (
     <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
@@ -157,7 +168,31 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
       {phase.kind === "error" && (
         <div className="mt-4 flex animate-fade-up items-start gap-2 rounded-xl border border-red-100 bg-red-50 px-3 py-2.5 text-sm text-red-700">
           <AlertIcon className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{phase.message}</span>
+          <span>
+            {phase.message}{" "}
+            {phase.limitReached && (
+              <Link href="/pricing" className="font-semibold underline">
+                See plans
+              </Link>
+            )}
+          </span>
+        </div>
+      )}
+
+      {limit != null && !busy && (
+        <div className="mt-4 border-t border-slate-100 pt-3">
+          <div className="flex justify-between font-mono text-[11px] text-slate-500">
+            <span>Free plan</span>
+            <span>
+              {used} / {limit} uploads used
+            </span>
+          </div>
+          <div className="mt-1 h-1 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className={`h-full rounded-full transition-[width] duration-500 ${used >= limit - 2 ? "bg-amber-500" : "bg-brand-600"}`}
+              style={{ width: `${Math.min(100, (used / limit) * 100)}%` }}
+            />
+          </div>
         </div>
       )}
     </div>
@@ -205,6 +240,26 @@ function UploadingCard({ file, phase, onCancel }: { file: File; phase: Phase; on
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function LimitReached({ limit }: { limit: number }) {
+  return (
+    <div className="animate-fade-up rounded-2xl border border-brand-200 bg-linear-to-br from-brand-50 to-white p-6 text-center shadow-sm">
+      <span className="mx-auto flex h-12 w-12 animate-float items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/30">
+        <SparklesIcon className="h-6 w-6" />
+      </span>
+      <h2 className="mt-4 text-lg font-bold">You&apos;ve used all {limit} free uploads</h2>
+      <p className="mx-auto mt-1 max-w-xs text-sm text-slate-600">
+        Your past transcripts are still here. Upgrade to Pro to keep uploading without limits.
+      </p>
+      <Link
+        href="/pricing"
+        className="mt-5 inline-block rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/25 transition hover:-translate-y-0.5 hover:bg-brand-700"
+      >
+        See plans
+      </Link>
     </div>
   );
 }

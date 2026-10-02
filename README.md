@@ -56,7 +56,11 @@ Everything runs in the cloud: Railway hosts the API, worker, Postgres, Redis and
    S3_REGION=${{Bucket.REGION}}
    S3_ACCESS_KEY_ID=${{Bucket.ACCESS_KEY_ID}}
    S3_SECRET_ACCESS_KEY=${{Bucket.SECRET_ACCESS_KEY}}
+   JWT_SECRET=<long random string, same on both services>
    ```
+
+   Generate the secret with `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
+   Optional: `FREE_UPLOAD_LIMIT` (default 10).
 
    And on `api` only: `CORS_ORIGINS=https://<your-app>.vercel.app`.
 

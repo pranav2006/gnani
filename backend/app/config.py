@@ -36,6 +36,14 @@ LOCAL_STORAGE_DIR = os.getenv("LOCAL_STORAGE_DIR", "storage")
 
 MAX_UPLOAD_MB = int(os.getenv("MAX_UPLOAD_MB", "500"))
 
+# Auth. JWT_SECRET signs login tokens: anyone who knows it can forge a
+# token for any user, so production must set a long random value.
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-only-insecure-secret-change-me")
+JWT_EXPIRE_DAYS = int(os.getenv("JWT_EXPIRE_DAYS", "7"))
+
+# Uploads allowed on the free plan before the user has to upgrade.
+FREE_UPLOAD_LIMIT = int(os.getenv("FREE_UPLOAD_LIMIT", "10"))
+
 # Comma separated list of frontend origins allowed to call the API.
 # Browsers send the Origin without a trailing slash, so strip any here;
 # "https://x.vercel.app/" would otherwise never match.

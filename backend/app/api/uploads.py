@@ -12,8 +12,10 @@ from sqlalchemy.orm import Session
 
 from app import config, models
 from app.database import get_db
-from app.models import AudioUpload
+from app.api.auth import count_uploads, upload_limit_for
+from app.models import AudioUpload, User
 from app.services import audio, storage
+from app.services.auth import get_current_user, get_current_user_header_or_query
 from app.worker.tasks import process_audio
 
 
@@ -68,13 +70,38 @@ def _safe_filename(name: str | None) -> str:
     return cleaned[:200]
 
 
-def _get_upload_or_404(db: Session, upload_id: uuid.UUID) -> AudioUpload:
+def _get_upload_or_404(db: Session, upload_id: uuid.UUID, user: User) -> AudioUpload:
     upload = db.get(AudioUpload, upload_id)
 
-    if upload is None:
+    # Someone else's upload gets the same 404 as a missing one, so ids
+    # can't be probed to learn what exists.
+    if upload is None or upload.user_id != user.id:
         raise HTTPException(status_code=404, detail="Upload not found.")
 
     return upload
+
+
+def _check_quota(db: Session, user: User, lock: bool = False) -> None:
+    limit = upload_limit_for(user)
+
+    if limit is None:
+        return
+
+    if lock:
+        # Lock this user's row until the transaction commits, so two
+        # uploads sent at the same moment can't both pass the count
+        # check and go over the limit.
+        db.execute(select(User.id).where(User.id == user.id).with_for_update())
+
+    if count_uploads(db, user) >= limit:
+        # 402 Payment Required: the frontend shows the upgrade prompt.
+        raise HTTPException(
+            status_code=402,
+            detail=(
+                f"You've used all {limit} uploads on the free plan. "
+                "Upgrade to Pro for unlimited uploads."
+            ),
+        )
 
 
 def _enqueue(db: Session, upload: AudioUpload) -> None:
@@ -98,8 +125,13 @@ def _enqueue(db: Session, upload: AudioUpload) -> None:
 def create_upload(
     file: UploadFile = File(...),
     language_code: str = Form("en-IN"),
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+    # Fail fast before receiving a possibly huge file. Checked again
+    # under a lock just before the row is inserted.
+    _check_quota(db, user)
+
     filename = _safe_filename(file.filename)
     extension = Path(filename).suffix.lower()
 
@@ -156,8 +188,11 @@ def create_upload(
                 detail="Could not save the file to storage. Please try again.",
             )
 
+    _check_quota(db, user, lock=True)
+
     upload = AudioUpload(
         id=upload_id,
+        user_id=user.id,
         filename=filename,
         storage_key=storage_key,
         size_bytes=size,
@@ -180,10 +215,12 @@ def create_upload(
 @router.get("/", response_model=list[UploadSummary])
 def list_uploads(
     limit: int = 50,
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     query = (
         select(AudioUpload)
+        .where(AudioUpload.user_id == user.id)
         .order_by(AudioUpload.created_at.desc())
         .limit(min(limit, 200))
     )
@@ -193,17 +230,20 @@ def list_uploads(
 @router.get("/{upload_id}", response_model=UploadDetail)
 def get_upload(
     upload_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return _get_upload_or_404(db, upload_id)
+    return _get_upload_or_404(db, upload_id, user)
 
 
 @router.post("/{upload_id}/retry", response_model=UploadDetail)
 def retry_upload(
     upload_id: uuid.UUID,
+    user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    upload = _get_upload_or_404(db, upload_id)
+    # A retry re-processes an existing upload, so it doesn't use quota.
+    upload = _get_upload_or_404(db, upload_id, user)
 
     if upload.status != models.FAILED:
         raise HTTPException(
@@ -235,9 +275,10 @@ def retry_upload(
 @router.get("/{upload_id}/audio")
 def get_audio(
     upload_id: uuid.UUID,
+    user: User = Depends(get_current_user_header_or_query),
     db: Session = Depends(get_db),
 ):
-    upload = _get_upload_or_404(db, upload_id)
+    upload = _get_upload_or_404(db, upload_id, user)
 
     if storage.using_bucket():
         # Let the browser stream straight from the bucket.

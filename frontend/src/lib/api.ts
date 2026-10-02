@@ -40,6 +40,58 @@ export interface UploadDetail extends UploadSummary {
   updated_at: string;
 }
 
+export interface User {
+  id: string;
+  email: string;
+  plan: "free" | "pro";
+  created_at: string;
+  uploads_used: number;
+  upload_limit: number | null; // null = unlimited
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+// --- Login token ---------------------------------------------------------
+// Kept in localStorage so it survives reloads. Any 401 from the API clears
+// it and fires "auth:logout", which AuthProvider listens for.
+
+const TOKEN_KEY = "audionotes_token";
+
+export function getToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setToken(token: string) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken() {
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+function handleUnauthorized() {
+  clearToken();
+  window.dispatchEvent(new Event("auth:logout"));
+}
+
+/** Error that also carries the HTTP status (e.g. 402 = upload limit). */
+export class ApiError extends Error {
+  constructor(message: string, public status: number) {
+    super(message);
+  }
+}
+
 export const LANGUAGES: Record<string, string> = {
   "en-IN": "English (India)",
   "hi-IN": "Hindi",
@@ -74,16 +126,39 @@ async function errorMessage(response: Response): Promise<string> {
   return `Request failed with status ${response.status}`;
 }
 
-async function request<T>(path: string, init?: RequestInit): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers);
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${path}`, { cache: "no-store", ...init });
+    response = await fetch(`${API_URL}${path}`, { cache: "no-store", ...init, headers });
   } catch {
     throw new Error("Cannot reach the server. Check your connection.");
   }
-  if (!response.ok) throw new Error(await errorMessage(response));
+  // A 401 on login itself just means wrong credentials, not a dead session.
+  if (response.status === 401 && token && !path.startsWith("/auth/login")) handleUnauthorized();
+  if (!response.ok) throw new ApiError(await errorMessage(response), response.status);
   return response.json();
 }
+
+const postJson = <T>(path: string, body: unknown) =>
+  request<T>(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+export const register = (email: string, password: string) =>
+  postJson<AuthResponse>("/auth/register", { email, password });
+
+export const login = (email: string, password: string) =>
+  postJson<AuthResponse>("/auth/login", { email, password });
+
+export const getMe = () => request<User>("/auth/me");
+
+export const upgradePlan = () => request<User>("/auth/upgrade", { method: "POST" });
 
 export const listUploads = () => request<UploadSummary[]>("/uploads/");
 
@@ -92,7 +167,10 @@ export const getUpload = (id: string) => request<UploadDetail>(`/uploads/${id}`)
 export const retryUpload = (id: string) =>
   request<UploadDetail>(`/uploads/${id}/retry`, { method: "POST" });
 
-export const audioUrl = (id: string) => `${API_URL}/uploads/${id}/audio`;
+// <audio src> can't send an Authorization header, so the token goes in
+// the query string for this one endpoint.
+export const audioUrl = (id: string) =>
+  `${API_URL}/uploads/${id}/audio?token=${encodeURIComponent(getToken() ?? "")}`;
 
 /**
  * Upload with XMLHttpRequest because fetch() has no upload progress
@@ -107,6 +185,8 @@ export function uploadFile(
 
   const promise = new Promise<UploadDetail>((resolve, reject) => {
     xhr.open("POST", `${API_URL}/uploads/`);
+    const token = getToken();
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress(event.loaded / event.total);
@@ -122,8 +202,9 @@ export function uploadFile(
       if (xhr.status >= 200 && xhr.status < 300 && body) {
         resolve(body as UploadDetail);
       } else {
+        if (xhr.status === 401) handleUnauthorized();
         const detail = typeof body?.detail === "string" ? body.detail : null;
-        reject(new Error(detail ?? `Upload failed with status ${xhr.status}`));
+        reject(new ApiError(detail ?? `Upload failed with status ${xhr.status}`, xhr.status));
       }
     };
 
