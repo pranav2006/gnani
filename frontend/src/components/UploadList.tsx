@@ -53,13 +53,13 @@ export default function UploadList() {
   }, []);
 
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+    <section className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-5">
       <div className="mb-4 flex items-center justify-between">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-wider text-brand-600">Library</p>
           <h2 className="text-lg font-bold">Past uploads</h2>
         </div>
-        {uploads && <span className="font-mono text-xs text-slate-400">{uploads.length} file(s)</span>}
+        {uploads && <span className="font-mono text-xs text-neutral-400">{uploads.length} file(s)</span>}
       </div>
 
       {error && (
@@ -74,7 +74,7 @@ export default function UploadList() {
       {uploads === null && !error && (
         <div className="space-y-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="flex items-center gap-3 rounded-xl border border-slate-100 p-3">
+            <div key={i} className="flex items-center gap-3 rounded-xl border border-neutral-100 p-3">
               <div className="skeleton h-10 w-10 rounded-lg!" />
               <div className="flex-1 space-y-2">
                 <div className="skeleton h-3 w-2/3" />
@@ -86,10 +86,10 @@ export default function UploadList() {
       )}
 
       {uploads?.length === 0 && (
-        <div className="flex flex-col items-center rounded-xl border border-dashed border-slate-200 px-6 py-12 text-center">
-          <Waveform active={false} className="h-8" color="bg-slate-300" />
-          <p className="mt-3 font-semibold text-slate-700">No recordings yet</p>
-          <p className="mt-1 text-sm text-slate-500">Upload one and its transcript and summary will show up here.</p>
+        <div className="flex flex-col items-center rounded-xl border border-dashed border-neutral-200 px-6 py-12 text-center">
+          <Waveform active={false} className="h-8" color="bg-neutral-300" />
+          <p className="mt-3 font-semibold text-neutral-700">No recordings yet</p>
+          <p className="mt-1 text-sm text-neutral-500">Upload one and its transcript and summary will show up here.</p>
         </div>
       )}
 
@@ -101,7 +101,7 @@ export default function UploadList() {
               <li key={u.id} className="animate-fade-up" style={{ animationDelay: `${Math.min(i, 10) * 40}ms` }}>
                 <Link
                   href={`/uploads/${u.id}`}
-                  className="group flex items-center gap-3 rounded-xl border border-slate-100 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md hover:shadow-brand-600/5"
+                  className="group flex items-center gap-3 rounded-xl border border-neutral-100 p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-md hover:shadow-brand-600/5"
                 >
                   <span
                     className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${
@@ -121,7 +121,7 @@ export default function UploadList() {
                         <StatusBadge status={u.status} />
                       </span>
                     </div>
-                    <div className="mt-0.5 flex flex-wrap gap-x-3 font-mono text-[11px] text-slate-500">
+                    <div className="mt-0.5 flex flex-wrap gap-x-3 font-mono text-[11px] text-neutral-500">
                       <span>{formatDuration(u.duration_seconds)}</span>
                       <span>{LANGUAGES[u.language_code] ?? u.language_code}</span>
                       <span>{timeAgo(parseServerDate(u.created_at))}</span>

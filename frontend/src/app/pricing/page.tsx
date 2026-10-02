@@ -46,7 +46,7 @@ export default function PricingPage() {
       <header className="text-center">
         <p className="font-mono text-[11px] uppercase tracking-wider text-brand-600">Pricing</p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Pick a plan</h1>
-        <p className="mx-auto mt-2 max-w-xl text-slate-600">
+        <p className="mx-auto mt-2 max-w-xl text-neutral-600">
           Start free with 10 uploads. Go Pro when you need more.
         </p>
         {atLimit && (
@@ -64,11 +64,11 @@ export default function PricingPage() {
           features={FREE_FEATURES}
           action={
             !user ? (
-              <Link href="/signup" className="block rounded-xl border border-slate-200 py-2.5 text-center text-sm font-semibold transition hover:border-brand-200 hover:text-brand-700">
+              <Link href="/signup" className="block rounded-xl border border-neutral-200 py-2.5 text-center text-sm font-semibold transition hover:border-brand-200 hover:text-brand-700">
                 Get started
               </Link>
             ) : (
-              <p className="rounded-xl bg-slate-50 py-2.5 text-center text-sm font-medium text-slate-500">
+              <p className="rounded-xl bg-neutral-50 py-2.5 text-center text-sm font-medium text-neutral-500">
                 {isPro ? "Included" : "Your current plan"}
               </p>
             )
@@ -99,7 +99,7 @@ export default function PricingPage() {
                 >
                   {upgrading ? <span className="loading-dots">Upgrading</span> : "Upgrade to Pro"}
                 </button>
-                <p className="mt-2 text-center text-[11px] text-slate-400">Demo checkout: no payment is taken.</p>
+                <p className="mt-2 text-center text-[11px] text-neutral-400">Demo checkout: no payment is taken.</p>
                 {error && <p className="mt-2 text-center text-xs text-red-600">{error}</p>}
               </>
             )
@@ -128,7 +128,7 @@ function PlanCard({
   return (
     <section
       className={`relative flex flex-col rounded-2xl border bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-md sm:p-8 ${
-        highlighted ? "border-brand-200 shadow-brand-600/10 ring-2 ring-brand-100" : "border-slate-200/80"
+        highlighted ? "border-brand-200 shadow-brand-600/10 ring-2 ring-brand-100" : "border-neutral-200/80"
       }`}
     >
       {highlighted && (
@@ -139,11 +139,11 @@ function PlanCard({
       <h2 className="text-lg font-bold">{name}</h2>
       <p className="mt-3">
         <span className="text-4xl font-bold tracking-tight">{price}</span>
-        <span className="ml-1 text-sm text-slate-500">{note}</span>
+        <span className="ml-1 text-sm text-neutral-500">{note}</span>
       </p>
       <ul className="mt-6 flex-1 space-y-2.5">
         {features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2 text-sm text-slate-700">
+          <li key={feature} className="flex items-start gap-2 text-sm text-neutral-700">
             <CheckIcon className={`mt-0.5 h-4 w-4 shrink-0 ${highlighted ? "text-brand-600" : "text-emerald-500"}`} />
             {feature}
           </li>

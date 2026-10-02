@@ -1,19 +1,19 @@
 import { isTerminal, type UploadStatus } from "@/lib/api";
 
 const STYLES: Record<UploadStatus, string> = {
-  QUEUED: "bg-slate-100 text-slate-600",
-  PREPROCESSING: "bg-brand-50 text-brand-700",
-  TRANSCRIBING: "bg-brand-50 text-brand-700",
-  SUMMARIZING: "bg-violet-50 text-violet-700",
+  QUEUED: "bg-neutral-100 text-neutral-600",
+  PREPROCESSING: "bg-neutral-100 text-neutral-900",
+  TRANSCRIBING: "bg-neutral-100 text-neutral-900",
+  SUMMARIZING: "bg-neutral-100 text-neutral-900",
   COMPLETED: "bg-emerald-50 text-emerald-700",
   FAILED: "bg-red-50 text-red-700",
 };
 
 const DOTS: Record<UploadStatus, string> = {
-  QUEUED: "bg-slate-400",
+  QUEUED: "bg-neutral-400",
   PREPROCESSING: "bg-brand-500",
   TRANSCRIBING: "bg-brand-500",
-  SUMMARIZING: "bg-violet-500",
+  SUMMARIZING: "bg-brand-500",
   COMPLETED: "bg-emerald-500",
   FAILED: "bg-red-500",
 };

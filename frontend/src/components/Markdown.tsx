@@ -45,7 +45,7 @@ export default function Markdown({ text }: { text: string }) {
 
     if (heading) {
       blocks.push(
-        <h3 key={blocks.length} className="mt-4 font-semibold text-slate-900">
+        <h3 key={blocks.length} className="mt-4 font-semibold text-neutral-900">
           {inline(heading[1])}
         </h3>,
       );
@@ -55,5 +55,5 @@ export default function Markdown({ text }: { text: string }) {
   }
   flushList();
 
-  return <div className="space-y-2 leading-relaxed text-slate-700">{blocks}</div>;
+  return <div className="space-y-2 leading-relaxed text-neutral-700">{blocks}</div>;
 }

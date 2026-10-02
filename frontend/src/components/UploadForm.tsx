@@ -79,7 +79,7 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
   if (limit != null && used >= limit && !busy) return <LimitReached limit={limit} />;
 
   return (
-    <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+    <div className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-5">
       <input
         ref={inputRef}
         type="file"
@@ -114,7 +114,7 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
           } ${
             dragging
               ? "scale-[1.01] border-brand-500 bg-brand-50"
-              : "border-slate-200 hover:border-brand-200 hover:bg-brand-50/40"
+              : "border-neutral-200 hover:border-brand-200 hover:bg-brand-50/40"
           }`}
         >
           <span
@@ -127,12 +127,12 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
           {file ? (
             <div className="mt-3 animate-fade-up">
               <p className="max-w-full truncate font-semibold">{file.name}</p>
-              <p className="mt-0.5 text-xs text-slate-500">{formatBytes(file.size)} · click to change</p>
+              <p className="mt-0.5 text-xs text-neutral-500">{formatBytes(file.size)} · click to change</p>
             </div>
           ) : (
             <>
               <p className="mt-3 font-semibold">{dragging ? "Release to add the file" : "Drop audio file or click to browse"}</p>
-              <p className="mt-0.5 text-xs text-slate-500">MP3, WAV, M4A, FLAC… up to {MAX_UPLOAD_MB} MB, any length</p>
+              <p className="mt-0.5 text-xs text-neutral-500">MP3, WAV, M4A, FLAC… up to {MAX_UPLOAD_MB} MB, any length</p>
             </>
           )}
         </div>
@@ -140,14 +140,14 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
 
       {!busy && (
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <label className="font-mono text-[11px] uppercase tracking-wider text-slate-500" htmlFor="language">
+          <label className="font-mono text-[11px] uppercase tracking-wider text-neutral-500" htmlFor="language">
             Language
           </label>
           <select
             id="language"
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+            className="rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-sm outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
           >
             {Object.entries(LANGUAGES).map(([code, name]) => (
               <option key={code} value={code}>
@@ -158,7 +158,7 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
           <button
             onClick={submit}
             disabled={!file}
-            className="ml-auto rounded-xl bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-brand-600/25 transition hover:-translate-y-0.5 hover:bg-brand-700 disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none"
+            className="ml-auto rounded-xl bg-brand-600 px-5 py-2 text-sm font-semibold text-white shadow-md shadow-brand-600/25 transition hover:-translate-y-0.5 hover:bg-brand-700 disabled:translate-y-0 disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-400 disabled:shadow-none"
           >
             Transcribe
           </button>
@@ -180,14 +180,14 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
       )}
 
       {limit != null && !busy && (
-        <div className="mt-4 border-t border-slate-100 pt-3">
-          <div className="flex justify-between font-mono text-[11px] text-slate-500">
+        <div className="mt-4 border-t border-neutral-100 pt-3">
+          <div className="flex justify-between font-mono text-[11px] text-neutral-500">
             <span>Free plan</span>
             <span>
               {used} / {limit} uploads used
             </span>
           </div>
-          <div className="mt-1 h-1 overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-1 h-1 overflow-hidden rounded-full bg-neutral-100">
             <div
               className={`h-full rounded-full transition-[width] duration-500 ${used >= limit - 2 ? "bg-amber-500" : "bg-brand-600"}`}
               style={{ width: `${Math.min(100, (used / limit) * 100)}%` }}
@@ -213,7 +213,7 @@ function UploadingCard({ file, phase, onCancel }: { file: File; phase: Phase; on
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{file.name}</p>
-          <p className="font-mono text-[11px] text-slate-500">
+          <p className="font-mono text-[11px] text-neutral-500">
             {uploading ? (
               <>
                 {formatBytes(fraction * file.size)} / {formatBytes(file.size)}
@@ -232,10 +232,10 @@ function UploadingCard({ file, phase, onCancel }: { file: File; phase: Phase; on
         <div className="bar-shimmer h-full rounded-full transition-[width] duration-300" style={{ width: `${Math.max(3, fraction * 100)}%` }} />
       </div>
 
-      <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+      <div className="mt-3 flex items-center justify-between text-xs text-neutral-500">
         <span>{uploading ? "Uploading to server" : "Almost there. Opening the studio next."}</span>
         {uploading && (
-          <button onClick={onCancel} className="rounded-md px-2 py-1 font-medium text-slate-600 transition hover:bg-white hover:text-red-600">
+          <button onClick={onCancel} className="rounded-md px-2 py-1 font-medium text-neutral-600 transition hover:bg-white hover:text-red-600">
             Cancel
           </button>
         )}
@@ -251,7 +251,7 @@ function LimitReached({ limit }: { limit: number }) {
         <SparklesIcon className="h-6 w-6" />
       </span>
       <h2 className="mt-4 text-lg font-bold">You&apos;ve used all {limit} free uploads</h2>
-      <p className="mx-auto mt-1 max-w-xs text-sm text-slate-600">
+      <p className="mx-auto mt-1 max-w-xs text-sm text-neutral-600">
         Your past transcripts are still here. Upgrade to Pro to keep uploading without limits.
       </p>
       <Link

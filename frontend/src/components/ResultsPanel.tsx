@@ -50,7 +50,7 @@ function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
       }}
-      className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-medium text-slate-600 transition hover:border-brand-200 hover:text-brand-700"
+      className="flex items-center gap-1.5 rounded-lg border border-neutral-200 px-2.5 py-1 text-xs font-medium text-neutral-600 transition hover:border-brand-200 hover:text-brand-700"
     >
       {copied ? <CheckIcon className="h-3.5 w-3.5 animate-pop text-emerald-600" /> : <CopyIcon className="h-3.5 w-3.5" />}
       {copied ? "Copied" : "Copy"}
@@ -108,9 +108,9 @@ export default function ResultsPanel({
   const summaryNew = !!upload.summary && !hadSummaryOnLoad && !seenSummary && tab !== "summary";
 
   return (
-    <section className="flex min-h-[32rem] flex-col rounded-2xl border border-slate-200/80 bg-white shadow-sm">
-      <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 p-3 sm:p-4">
-        <div className="flex rounded-xl bg-slate-100/80 p-1">
+    <section className="flex min-h-[32rem] flex-col rounded-2xl border border-neutral-200/80 bg-white shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 border-b border-neutral-100 p-3 sm:p-4">
+        <div className="flex rounded-xl bg-neutral-100/80 p-1">
           {(
             [
               { id: "transcript", label: "Transcript", icon: DocIcon },
@@ -124,7 +124,7 @@ export default function ResultsPanel({
                 if (id === "summary") setSeenSummary(true);
               }}
               className={`relative flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ${
-                tab === id ? "bg-white text-ink shadow-sm" : "text-slate-500 hover:text-ink"
+                tab === id ? "bg-white text-ink shadow-sm" : "text-neutral-500 hover:text-ink"
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -137,7 +137,7 @@ export default function ResultsPanel({
         </div>
 
         {tab === "transcript" && segments.length > 0 && (
-          <span className="ml-auto flex items-center gap-1.5 font-mono text-[11px] text-slate-500">
+          <span className="ml-auto flex items-center gap-1.5 font-mono text-[11px] text-neutral-500">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
             Synced to playback
           </span>
@@ -153,15 +153,15 @@ export default function ResultsPanel({
         <div className="flex flex-1 flex-col">
           {upload.transcript != null && segments.length > 0 && (
             <div className="flex flex-wrap items-center gap-3 px-3 pt-3 sm:px-4">
-              <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-slate-100/80 px-3 py-2 text-sm transition focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
-                <SearchIcon className="h-4 w-4 shrink-0 text-slate-400" />
+              <label className="flex min-w-0 flex-1 items-center gap-2 rounded-xl bg-neutral-100/80 px-3 py-2 text-sm transition focus-within:bg-white focus-within:ring-2 focus-within:ring-brand-100">
+                <SearchIcon className="h-4 w-4 shrink-0 text-neutral-400" />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search transcript..."
-                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-slate-400"
+                  className="min-w-0 flex-1 bg-transparent outline-none placeholder:text-neutral-400"
                 />
-                {q && <span className="shrink-0 font-mono text-[11px] text-slate-500">{matchCount} match(es)</span>}
+                {q && <span className="shrink-0 font-mono text-[11px] text-neutral-500">{matchCount} match(es)</span>}
               </label>
               <CopyButton text={upload.transcript} />
             </div>
@@ -172,12 +172,12 @@ export default function ResultsPanel({
               <TranscriptPending upload={upload} />
             ) : segments.length === 0 ? (
               upload.transcript ? (
-                <p className="animate-fade-up whitespace-pre-wrap leading-relaxed text-slate-700">{upload.transcript}</p>
+                <p className="animate-fade-up whitespace-pre-wrap leading-relaxed text-neutral-700">{upload.transcript}</p>
               ) : (
-                <p className="py-10 text-center text-sm text-slate-500">No speech was detected in this recording.</p>
+                <p className="py-10 text-center text-sm text-neutral-500">No speech was detected in this recording.</p>
               )
             ) : visibleBlocks.length === 0 ? (
-              <p className="py-10 text-center text-sm text-slate-500">No matches for &quot;{q}&quot;.</p>
+              <p className="py-10 text-center text-sm text-neutral-500">No matches for &quot;{q}&quot;.</p>
             ) : (
               visibleBlocks.map((block, i) => {
                 const isActive = blocks.indexOf(block) === activeBlock;
@@ -186,7 +186,7 @@ export default function ResultsPanel({
                     key={block.start}
                     ref={isActive ? activeRef : undefined}
                     className={`animate-fade-up rounded-xl border p-4 transition-all duration-300 ${
-                      isActive ? "border-brand-200 bg-brand-50/40 shadow-sm shadow-brand-600/10" : "border-slate-100 hover:border-slate-200"
+                      isActive ? "border-brand-200 bg-brand-50/40 shadow-sm shadow-brand-600/10" : "border-neutral-100 hover:border-neutral-200"
                     }`}
                     style={{ animationDelay: `${Math.min(i, 12) * 35}ms` }}
                   >
@@ -198,20 +198,20 @@ export default function ResultsPanel({
                       <button
                         onClick={() => onSeek(block.start)}
                         className={`font-mono text-[11px] tabular-nums transition hover:text-brand-700 hover:underline ${
-                          isActive ? "text-brand-600" : "text-slate-400"
+                          isActive ? "text-brand-600" : "text-neutral-400"
                         }`}
                         title="Play from here"
                       >
                         {formatDuration(block.start)} – {formatDuration(block.end)}
                       </button>
                     </div>
-                    <p className="text-[15px] leading-relaxed text-slate-700">
+                    <p className="text-[15px] leading-relaxed text-neutral-700">
                       {block.items.map(({ segment, index }) => (
                         <span
                           key={index}
                           onClick={() => onSeek(segment.start)}
                           title={`Play from ${formatDuration(segment.start)}`}
-                          className={`cursor-pointer rounded px-0.5 transition-colors duration-200 hover:bg-slate-100 ${
+                          className={`cursor-pointer rounded px-0.5 transition-colors duration-200 hover:bg-neutral-100 ${
                             index === activeIndex ? "bg-brand-100 text-brand-700 hover:bg-brand-100" : ""
                           }`}
                         >
@@ -242,7 +242,7 @@ export default function ResultsPanel({
 
 function TranscriptPending({ upload }: { upload: UploadDetail }) {
   if (upload.status === "FAILED") {
-    return <p className="py-16 text-center text-sm text-slate-500">No transcript. See the error on the left and retry.</p>;
+    return <p className="py-16 text-center text-sm text-neutral-500">No transcript. See the error on the left and retry.</p>;
   }
   const listening = upload.status === "TRANSCRIBING";
   return (
@@ -256,7 +256,7 @@ function TranscriptPending({ upload }: { upload: UploadDetail }) {
       <p className="mt-5 font-semibold">
         <span className="loading-dots">{listening ? "Gnani is listening" : "Getting your audio ready"}</span>
       </p>
-      <p className="mt-1 max-w-sm text-sm text-slate-500">
+      <p className="mt-1 max-w-sm text-sm text-neutral-500">
         {listening
           ? "The transcript appears here as soon as every chunk is done. Long recordings can take a few minutes."
           : "Converting to 16 kHz mono and splitting long audio into chunks."}
@@ -270,20 +270,20 @@ function TranscriptPending({ upload }: { upload: UploadDetail }) {
 
 function SummaryPending({ upload }: { upload: UploadDetail }) {
   if (upload.status === "FAILED") {
-    return <p className="py-16 text-center text-sm text-slate-500">No summary yet. Use retry on the left.</p>;
+    return <p className="py-16 text-center text-sm text-neutral-500">No summary yet. Use retry on the left.</p>;
   }
   const generating = upload.status === "SUMMARIZING";
   return (
     <div className="py-6">
       <div className="mb-6 flex items-center gap-3">
-        <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600 ${generating ? "animate-float" : ""}`}>
+        <span className={`flex h-10 w-10 items-center justify-center rounded-xl bg-ink text-white ${generating ? "animate-float" : ""}`}>
           <SparklesIcon className="h-5 w-5" />
         </span>
         <div>
           <p className="font-semibold">
             {generating ? <span className="loading-dots">Writing the summary</span> : "Summary comes after the transcript"}
           </p>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-neutral-500">
             {generating ? "The LLM is reading the full transcript." : "It is generated as soon as transcription finishes."}
           </p>
         </div>

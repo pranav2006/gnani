@@ -40,10 +40,10 @@ Browser polls GET /uploads/{id} every 2.5 s and renders progress → result`;
 
 function Card({ eyebrow, title, children }: { eyebrow: string; title: string; children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm sm:p-6">
       <p className="font-mono text-[11px] uppercase tracking-wider text-brand-600">{eyebrow}</p>
       <h2 className="mt-1 text-xl font-bold">{title}</h2>
-      <div className="mt-3 space-y-3 leading-relaxed text-slate-700">{children}</div>
+      <div className="mt-3 space-y-3 leading-relaxed text-neutral-700">{children}</div>
     </section>
   );
 }
@@ -62,10 +62,10 @@ curl -X POST "${API_URL}/uploads/<id>/retry"`;
 
   return (
     <article className="space-y-6">
-      <header className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
+      <header className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm sm:p-8">
         <p className="font-mono text-[11px] uppercase tracking-wider text-brand-600">System architecture</p>
         <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">How AudioNotes works</h1>
-        <p className="mt-2 max-w-2xl text-slate-600">
+        <p className="mt-2 max-w-2xl text-neutral-600">
           From an uploaded file to a timestamped transcript and a summary: where each step runs, where files live, and
           how long recordings and failures are handled.
         </p>
@@ -73,17 +73,17 @@ curl -X POST "${API_URL}/uploads/<id>/retry"`;
           href={GITHUB_URL}
           target="_blank"
           rel="noreferrer"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-neutral-800"
         >
           <GitHubIcon className="h-4 w-4" /> Source code on GitHub
         </a>
 
-        <dl className="mt-8 grid gap-6 border-t border-slate-100 pt-6 sm:grid-cols-3">
+        <dl className="mt-8 grid gap-6 border-t border-neutral-100 pt-6 sm:grid-cols-3">
           {STATS.map((stat) => (
             <div key={stat.label}>
-              <dt className="font-mono text-[11px] uppercase tracking-wider text-slate-500">{stat.label}</dt>
+              <dt className="font-mono text-[11px] uppercase tracking-wider text-neutral-500">{stat.label}</dt>
               <dd className="mt-1 font-mono text-3xl font-semibold text-brand-600">{stat.value}</dd>
-              <dd className="mt-1 text-xs text-slate-500">{stat.note}</dd>
+              <dd className="mt-1 text-xs text-neutral-500">{stat.note}</dd>
             </div>
           ))}
         </dl>
@@ -96,12 +96,12 @@ curl -X POST "${API_URL}/uploads/<id>/retry"`;
           {PIPELINE.map((step) => (
             <div
               key={step.n}
-              className="flex flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:shadow-brand-600/5"
+              className="flex flex-col rounded-2xl border border-neutral-200/80 bg-white p-5 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-md hover:shadow-brand-600/5"
             >
               <span className="font-mono text-xs font-semibold text-brand-600">{step.n}</span>
               <h3 className="mt-2 font-bold">{step.title}</h3>
-              <p className="mt-1 flex-1 text-sm leading-relaxed text-slate-600">{step.text}</p>
-              <p className="mt-4 border-t border-slate-100 pt-3 font-mono text-[11px] text-slate-500">Runs in: {step.where}</p>
+              <p className="mt-1 flex-1 text-sm leading-relaxed text-neutral-600">{step.text}</p>
+              <p className="mt-4 border-t border-neutral-100 pt-3 font-mono text-[11px] text-neutral-500">Runs in: {step.where}</p>
             </div>
           ))}
         </div>
@@ -130,8 +130,8 @@ curl -X POST "${API_URL}/uploads/<id>/retry"`;
             <b>Gnani Batch STT</b> for transcription, <b>Groq</b> (OpenAI gpt-oss-120b) for the summary.
           </li>
         </ul>
-        <div className="overflow-x-auto rounded-xl bg-slate-900 p-4">
-          <pre className="font-mono text-xs leading-relaxed text-slate-100">{DIAGRAM}</pre>
+        <div className="overflow-x-auto rounded-xl bg-neutral-900 p-4">
+          <pre className="font-mono text-xs leading-relaxed text-neutral-100">{DIAGRAM}</pre>
         </div>
         <p>
           The browser uploads with <code>XMLHttpRequest</code> so it can show real upload progress (fetch has no

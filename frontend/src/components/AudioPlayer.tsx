@@ -70,7 +70,7 @@ export default function AudioPlayer({
   const processing = !isTerminal(upload.status);
 
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+    <section className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-5">
       <audio ref={audioRef} src={audioUrl(upload.id)} preload="metadata" />
 
       <div className="flex items-start gap-3">
@@ -79,7 +79,7 @@ export default function AudioPlayer({
         </span>
         <div className="min-w-0 flex-1">
           <h1 className="break-words font-bold leading-snug">{upload.filename}</h1>
-          <p className="mt-0.5 font-mono text-[11px] text-slate-500">
+          <p className="mt-0.5 font-mono text-[11px] text-neutral-500">
             {[
               formatDuration(upload.duration_seconds),
               formatBytes(upload.size_bytes),
@@ -113,12 +113,12 @@ export default function AudioPlayer({
         />
         <div className="mt-1 flex justify-between font-mono text-[11px] font-medium text-brand-600 tabular-nums">
           <span>{formatDuration(current)}</span>
-          <span className="text-slate-400">{formatDuration(duration)}</span>
+          <span className="text-neutral-400">{formatDuration(duration)}</span>
         </div>
       </div>
 
       <div className="mt-2 flex items-center justify-center gap-5">
-        <button onClick={() => skip(-10)} className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-ink" title="Back 10s">
+        <button onClick={() => skip(-10)} className="rounded-full p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-ink" title="Back 10s">
           <BackIcon className="h-5 w-5" />
         </button>
         <button
@@ -128,7 +128,7 @@ export default function AudioPlayer({
         >
           {playing ? <PauseIcon className="h-5 w-5" /> : <PlayIcon className="ml-0.5 h-5 w-5" />}
         </button>
-        <button onClick={() => skip(10)} className="rounded-full p-2 text-slate-500 transition hover:bg-slate-100 hover:text-ink" title="Forward 10s">
+        <button onClick={() => skip(10)} className="rounded-full p-2 text-neutral-500 transition hover:bg-neutral-100 hover:text-ink" title="Forward 10s">
           <ForwardIcon className="h-5 w-5" />
         </button>
       </div>

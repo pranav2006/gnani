@@ -6,14 +6,14 @@
 }
 
 @theme {
-  --color-ink: #0f172a;
-  --color-canvas: #f4f5fb;
-  --color-brand-50: #eef0ff;
-  --color-brand-100: #e0e3ff;
-  --color-brand-200: #c7cbfe;
-  --color-brand-500: #5b54f0;
-  --color-brand-600: #4b3fe4;
-  --color-brand-700: #3e32c4;
+  --color-ink: #0a0a0a;
+  --color-canvas: #fafafa;
+  --color-brand-50: #fef2f2;
+  --color-brand-100: #fee2e2;
+  --color-brand-200: #fecaca;
+  --color-brand-500: #ef4444;
+  --color-brand-600: #dc2626;
+  --color-brand-700: #b91c1c;
 
   --animate-shimmer: shimmer 1.4s linear infinite;
   --animate-eq: eq 1.1s ease-in-out infinite;
@@ -68,7 +68,7 @@ body {
   background-image: linear-gradient(
     90deg,
     var(--color-brand-600) 0%,
-    #8b84ff 50%,
+    #f87171 50%,
     var(--color-brand-600) 100%
   );
   background-size: 200% 100%;
@@ -79,7 +79,7 @@ body {
 .skeleton {
   position: relative;
   overflow: hidden;
-  background: #eceefa;
+  background: #f0f0f0;
   border-radius: 9999px;
 }
 .skeleton::after {
@@ -110,7 +110,7 @@ body {
   background: linear-gradient(
     to right,
     var(--color-brand-600) var(--fill, 0%),
-    #e3e6f3 var(--fill, 0%)
+    #e5e5e5 var(--fill, 0%)
   );
   cursor: pointer;
 }
@@ -121,7 +121,7 @@ body {
   border-radius: 9999px;
   background: var(--color-brand-600);
   border: 2px solid white;
-  box-shadow: 0 1px 4px rgba(75, 63, 228, 0.45);
+  box-shadow: 0 1px 4px rgba(220, 38, 38, 0.45);
 }
 .seek::-moz-range-thumb {
   width: 14px;

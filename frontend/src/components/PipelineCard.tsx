@@ -55,10 +55,10 @@ export default function PipelineCard({
   const elapsed = useElapsed(upload.created_at, running);
 
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+    <section className="rounded-2xl border border-neutral-200/80 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-center justify-between">
-        <p className="font-mono text-[11px] uppercase tracking-wider text-slate-500">Processing pipeline</p>
-        {running && <span className="font-mono text-[11px] text-slate-400 tabular-nums">{formatDuration(elapsed)} elapsed</span>}
+        <p className="font-mono text-[11px] uppercase tracking-wider text-neutral-500">Processing pipeline</p>
+        {running && <span className="font-mono text-[11px] text-neutral-400 tabular-nums">{formatDuration(elapsed)} elapsed</span>}
       </div>
 
       <div className="mt-3 grid grid-cols-3 gap-2">
@@ -77,13 +77,13 @@ export default function PipelineCard({
                   ? "border-brand-200 bg-brand-50/60"
                   : state === "failed"
                     ? "border-red-200 bg-red-50"
-                    : "border-slate-100 bg-slate-50/60"
+                    : "border-neutral-100 bg-neutral-50/60"
               }`}
             >
               <div className="flex items-center justify-between gap-1">
                 <span
                   className={`truncate text-sm font-semibold ${
-                    state === "waiting" ? "text-slate-400" : state === "failed" ? "text-red-700" : state === "active" ? "text-brand-700" : "text-ink"
+                    state === "waiting" ? "text-neutral-400" : state === "failed" ? "text-red-700" : state === "active" ? "text-brand-700" : "text-ink"
                   }`}
                 >
                   {stage.label}
@@ -97,9 +97,9 @@ export default function PipelineCard({
                   <span className="font-mono text-[10px] font-semibold text-brand-600 tabular-nums">{Math.round(Math.max(0, fill))}%</span>
                 )}
                 {state === "failed" && <AlertIcon className="h-3.5 w-3.5 text-red-500" />}
-                {state === "waiting" && <span className="font-mono text-[10px] text-slate-400">{upload.status === "QUEUED" && i === 0 ? "Queue" : "—"}</span>}
+                {state === "waiting" && <span className="font-mono text-[10px] text-neutral-400">{upload.status === "QUEUED" && i === 0 ? "Queue" : "—"}</span>}
               </div>
-              <div className="mt-2 h-1 overflow-hidden rounded-full bg-slate-200/70">
+              <div className="mt-2 h-1 overflow-hidden rounded-full bg-neutral-200/70">
                 <div
                   className={`h-full rounded-full transition-[width] duration-700 ${
                     state === "done" ? "bg-emerald-500" : state === "failed" ? "bg-red-400" : "bar-shimmer"
@@ -113,7 +113,7 @@ export default function PipelineCard({
       </div>
 
       {running && (
-        <p key={upload.stage_detail} className="mt-3 animate-fade-up text-sm text-slate-600">
+        <p key={upload.stage_detail} className="mt-3 animate-fade-up text-sm text-neutral-600">
           <span className="loading-dots">{upload.stage_detail ?? "Working"}</span>
         </p>
       )}

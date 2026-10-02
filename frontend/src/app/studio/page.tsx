@@ -6,11 +6,11 @@ import Waveform from "@/components/Waveform";
 export default function StudioHome() {
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white px-6 py-8 shadow-sm sm:px-8">
+      <section className="relative overflow-hidden rounded-2xl border border-neutral-200/80 bg-white px-6 py-8 shadow-sm sm:px-8">
         <div className="relative z-10 max-w-xl">
           <p className="font-mono text-[11px] uppercase tracking-wider text-brand-600">Studio</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">Turn recordings into notes</h1>
-          <p className="mt-2 text-slate-600">
+          <p className="mt-2 text-neutral-600">
             Drop an audio file of any length to get a timestamped transcript from Gnani&apos;s speech recognition
             and an LLM summary.
           </p>

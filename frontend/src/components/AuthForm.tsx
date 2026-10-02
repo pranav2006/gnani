@@ -50,18 +50,18 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   }
 
   return (
-    <div className="mx-auto grid max-w-4xl overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm md:grid-cols-2">
-      <div className="relative hidden flex-col justify-between bg-linear-to-br from-brand-600 to-brand-700 p-8 text-white md:flex">
+    <div className="mx-auto grid max-w-4xl overflow-hidden rounded-2xl border border-neutral-200/80 bg-white shadow-sm md:grid-cols-2">
+      <div className="relative hidden flex-col justify-between bg-ink p-8 text-white md:flex">
         <div className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/15">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600">
             <LogoIcon className="h-5 w-5" />
           </span>
           <span className="text-lg font-bold">AudioNotes</span>
         </div>
         <div>
-          <Waveform bars={20} className="h-16" color="bg-white/70" />
+          <Waveform bars={20} className="h-16" color="bg-brand-500" />
           <p className="mt-6 text-2xl font-bold leading-snug">Every recording, turned into a transcript and a summary.</p>
-          <p className="mt-2 text-sm text-white/75">
+          <p className="mt-2 text-sm text-white/60">
             Free plan includes 10 uploads. Long recordings are split and transcribed with Gnani ASR.
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2.5 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
           placeholder="you@example.com"
         />
 
@@ -97,7 +97,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+          className="mt-1 w-full rounded-xl border border-neutral-200 px-3 py-2.5 outline-none transition focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
           placeholder={isSignup ? "At least 8 characters" : "Your password"}
         />
 
@@ -116,7 +116,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {submitting ? <span className="loading-dots">{isSignup ? "Creating account" : "Logging in"}</span> : isSignup ? "Create account" : "Log in"}
         </button>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-neutral-500">
           {isSignup ? "Already have an account? " : "New here? "}
           <Link href={isSignup ? "/login" : "/signup"} className="font-semibold text-brand-600 hover:underline">
             {isSignup ? "Log in" : "Create an account"}
