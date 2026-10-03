@@ -38,7 +38,6 @@ curl "${API_URL}/uploads/<id>" -H "Authorization: Bearer <token>"`;
         <div>
           <p className="font-mono text-[11px] uppercase tracking-wider text-brand-600">Architecture</p>
           <h1 className="mt-1 text-3xl font-bold tracking-tight sm:text-4xl">How it works</h1>
-          <p className="mt-2 max-w-xl text-neutral-600">The picture says most of it. The notes below fill in the details.</p>
         </div>
         <a
           href={GITHUB_URL}
