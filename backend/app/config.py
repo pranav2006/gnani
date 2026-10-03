@@ -1,17 +1,13 @@
 import os
-
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
 
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
     "postgresql://gnani:gnani@localhost:5432/audio_notes",
 )
 
-# SQLAlchemy needs postgresql://
 if DATABASE_URL.startswith("postgres://"):
     DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 

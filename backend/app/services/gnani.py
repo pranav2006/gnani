@@ -108,7 +108,6 @@ def create_batch_job(
 def start_batch_job(job_id: str, attempts: int = 6) -> dict:
     url = f"{GNANI_BASE_URL}/stt/v3/batch/jobs/{job_id}/start"
 
-    # start is safe to retry
     for attempt in range(attempts):
         response = _session.post(
             url,
