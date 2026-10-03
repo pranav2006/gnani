@@ -1,4 +1,4 @@
-# Audio Notes (Gnani take-home)
+# Audio Notes
 
 Upload an audio file → transcript (Gnani Batch STT) + summary (Groq LLM).
 Next.js frontend, FastAPI backend, Postgres, Redis + Celery worker, S3-compatible bucket.
