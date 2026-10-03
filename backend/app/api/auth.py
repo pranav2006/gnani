@@ -79,7 +79,7 @@ def register(body: Credentials, db: Session = Depends(get_db)):
     try:
         db.commit()
     except IntegrityError:
-      # unique email
+        # unique email
         db.rollback()
         raise HTTPException(status_code=409, detail="An account with this email already exists.")
 
