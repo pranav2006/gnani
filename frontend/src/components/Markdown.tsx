@@ -1,9 +1,6 @@
 import type { ReactNode } from "react";
 
-// Minimal renderer for the LLM summary (headings, bullet / numbered
-// lists, **bold**). It builds React elements instead of using
-// dangerouslySetInnerHTML, so model output can never inject HTML.
-
+// no raw HTML
 function inline(text: string): ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) =>
     part.startsWith("**") && part.endsWith("**") ? <strong key={i}>{part.slice(2, -2)}</strong> : part,

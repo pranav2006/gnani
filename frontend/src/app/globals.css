@@ -63,7 +63,6 @@ body {
   color: var(--color-ink);
 }
 
-/* Striped moving fill for "in progress" bars. */
 .bar-shimmer {
   background-image: linear-gradient(
     90deg,
@@ -75,7 +74,6 @@ body {
   animation: var(--animate-shimmer);
 }
 
-/* Skeleton line with a light sweep, used while waiting for text. */
 .skeleton {
   position: relative;
   overflow: hidden;
@@ -91,7 +89,6 @@ body {
   animation: var(--animate-sweep);
 }
 
-/* Animated "..." after a label. */
 .loading-dots::after {
   content: "...";
   display: inline-block;
@@ -101,7 +98,6 @@ body {
   width: 0;
 }
 
-/* Range input styled as the player seek bar. */
 .seek {
   -webkit-appearance: none;
   appearance: none;

@@ -1,13 +1,3 @@
-"""
-Summarisation with an LLM on Groq (OpenAI-compatible chat API).
-
-Long transcripts: Groq's free tier limits tokens per minute, and very
-long inputs make summaries worse anyway. So we use map-reduce:
-  - short transcript  -> one call
-  - long transcript   -> summarise each piece ("map"), then summarise
-                         the partial summaries into one ("reduce").
-"""
-
 import time
 
 import requests
@@ -17,8 +7,6 @@ from app import config
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 
-# ~4 characters per token, so ~12k chars is ~3k tokens per request,
-# comfortably inside free tier per-minute limits.
 MAX_CHARS_PER_CALL = 12000
 
 SYSTEM_PROMPT = (
@@ -73,7 +61,6 @@ def _chat(user_content: str, attempts: int = 4) -> str:
             time.sleep(2 ** attempt)
             continue
 
-        # Rate limited or server hiccup: wait and try again.
         if response.status_code == 429 or response.status_code >= 500:
             if attempt == attempts - 1:
                 break
@@ -95,7 +82,6 @@ def _chat(user_content: str, attempts: int = 4) -> str:
 
 
 def _split_text(text: str, max_chars: int) -> list[str]:
-    """Split on sentence-ish boundaries so pieces stay readable."""
 
     pieces = []
     current = ""
@@ -121,7 +107,7 @@ def summarize_transcript(transcript: str, on_progress=None) -> str:
     if len(transcript) <= MAX_CHARS_PER_CALL:
         return _chat(f"{FINAL_INSTRUCTIONS}\n\nTranscript:\n{transcript}")
 
-    # Map
+    # map
     pieces = _split_text(transcript, MAX_CHARS_PER_CALL)
     partial_summaries = []
 
@@ -133,7 +119,7 @@ def summarize_transcript(transcript: str, on_progress=None) -> str:
             _chat(f"{PARTIAL_INSTRUCTIONS}\n\nTranscript part:\n{piece}")
         )
 
-    # Reduce
+    # reduce
     combined = "\n\n".join(
         f"Part {i + 1}:\n{s}" for i, s in enumerate(partial_summaries)
     )

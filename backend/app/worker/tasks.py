@@ -1,17 +1,3 @@
-"""
-Background pipeline for one upload:
-
-  PREPROCESSING  download from storage, ffmpeg -> 16 kHz mono chunks
-  TRANSCRIBING   one Gnani batch job with all chunks, poll until done,
-                 download each chunk transcript and stitch them together
-  SUMMARIZING    LLM summary of the full transcript
-  COMPLETED
-
-Every step writes status / progress / stage_detail to Postgres so the
-frontend (which polls GET /uploads/{id}) can show what is happening.
-Any exception marks the row FAILED with a readable error_message.
-"""
-
 import tempfile
 import time
 import uuid
@@ -25,9 +11,8 @@ from app.services.summary import SummaryError, summarize_transcript
 from app.worker.celery_app import celery_app
 
 
-POLL_INTERVAL_SECONDS = 10  # Gnani recommends polling no faster than 10s.
+POLL_INTERVAL_SECONDS = 10
 
-# Progress bar ranges for each stage (0-100).
 PREPROCESS_RANGE = (5, 15)
 TRANSCRIBE_RANGE = (15, 85)
 SUMMARIZE_RANGE = (85, 99)
@@ -55,8 +40,7 @@ def process_audio(upload_id: str):
             return
 
         try:
-            # On a "retry summary" the transcript already exists, so we
-            # skip straight to the LLM and don't pay Gnani twice.
+            # summary-only retry
             if not upload.transcript:
                 _transcribe(db, upload)
 
@@ -89,7 +73,6 @@ def process_audio(upload_id: str):
 
 
 def _friendly_error(e: Exception) -> str:
-    # Our own exceptions already carry user-facing messages.
     if isinstance(e, (audio.AudioError, gnani.GnaniError, SummaryError, TimeoutError)):
         return str(e)
     return f"{type(e).__name__}: {e}"
@@ -98,9 +81,7 @@ def _friendly_error(e: Exception) -> str:
 def _transcribe(db, upload: AudioUpload) -> None:
     with tempfile.TemporaryDirectory() as work_dir:
 
-        # A gnani_job_id already set means this task was re-delivered
-        # after a worker crash: resume polling the existing job instead
-        # of uploading again.
+        # else resume existing job
         if not upload.gnani_job_id:
             chunks = _preprocess(db, upload, work_dir)
 
@@ -116,8 +97,7 @@ def _transcribe(db, upload: AudioUpload) -> None:
                 [chunk["path"] for chunk in chunks],
                 upload.language_code,
             )
-            # Save the job id before starting it, so a crash after this
-            # point resumes this job rather than creating a new one.
+            # saved before start
             _update(db, upload, gnani_job_id=job_id)
             gnani.start_batch_job(job_id)
 
@@ -162,7 +142,6 @@ def _preprocess(db, upload: AudioUpload, work_dir: str) -> list[dict]:
 
 
 def _wait_for_gnani(db, upload: AudioUpload) -> None:
-    # Generous deadline: 30 min baseline + 2x the audio length.
     timeout = 30 * 60 + 2 * (upload.duration_seconds or 0)
     started = time.monotonic()
 
@@ -177,8 +156,7 @@ def _wait_for_gnani(db, upload: AudioUpload) -> None:
         if status == gnani.JOB_SUCCESS:
             return
 
-        # Created but never started (e.g. we crashed right after
-        # creating it, while resuming): start it now.
+        # never started
         if status == "CREATED":
             gnani.start_batch_job(upload.gnani_job_id)
 
@@ -229,8 +207,7 @@ def _collect_transcript(db, upload: AudioUpload) -> None:
 
     files = gnani.get_job_files(upload.gnani_job_id)
 
-    # Chunk files are named chunk_000.mp3, chunk_001.mp3... so sorting by
-    # name restores the original order of the audio.
+    # restore chunk order
     files.sort(key=lambda f: Path(f.get("original_path") or "").name)
 
     segments = []
@@ -250,7 +227,7 @@ def _collect_transcript(db, upload: AudioUpload) -> None:
             text = (segment.get("text") or "").strip()
             if not text:
                 continue
-            # Shift chunk-relative times to positions in the full file.
+            # chunk time -> file time
             segments.append({
                 "start": round(offset + float(segment.get("start_time") or 0), 2),
                 "end": round(offset + float(segment.get("end_time") or 0), 2),

@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useAuth } from "./AuthProvider";
 
-// Call-to-action buttons that depend on whether the visitor is logged in.
 export default function HeroActions({ centered = false }: { centered?: boolean }) {
   const { user, loading } = useAuth();
 

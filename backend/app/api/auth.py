@@ -20,8 +20,6 @@ router = APIRouter(
 )
 
 
-# Deliberately simple: something@something.tld. Real verification would be
-# an emailed link.
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
@@ -36,7 +34,6 @@ class UserOut(BaseModel):
     plan: str
     created_at: datetime
     uploads_used: int
-    # None means unlimited (pro plan).
     upload_limit: int | None
 
 
@@ -73,7 +70,6 @@ def register(body: Credentials, db: Session = Depends(get_db)):
     if not EMAIL_PATTERN.match(email):
         raise HTTPException(status_code=400, detail="Please enter a valid email address.")
 
-    # bcrypt only uses the first 72 bytes of a password.
     if not 8 <= len(body.password.encode()) <= 72:
         raise HTTPException(status_code=400, detail="Password must be 8 to 72 characters long.")
 
@@ -83,8 +79,7 @@ def register(body: Credentials, db: Session = Depends(get_db)):
     try:
         db.commit()
     except IntegrityError:
-        # The unique constraint on email, not a pre-check, is what
-        # guarantees no duplicates (two simultaneous signups).
+      # unique email
         db.rollback()
         raise HTTPException(status_code=409, detail="An account with this email already exists.")
 
@@ -97,8 +92,7 @@ def login(body: Credentials, db: Session = Depends(get_db)):
     email = body.email.strip().lower()
     user = db.scalar(select(User).where(User.email == email))
 
-    # Same message for "no such user" and "wrong password", so the login
-    # form can't be used to find out which emails have accounts.
+    # same message for both
     if user is None or not verify_password(body.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect email or password.")
 
@@ -118,9 +112,6 @@ def upgrade(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # DEMO ONLY: no payment is taken. With a real payment provider this
-    # endpoint would not exist; the plan would be changed by the
-    # provider's webhook after a successful payment.
     user.plan = models.PLAN_PRO
     db.commit()
     return user_out(db, user)

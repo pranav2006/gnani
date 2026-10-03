@@ -1,15 +1,3 @@
-"""
-Where the original audio files live.
-
-Two backends behind the same three functions:
-  - S3-compatible bucket (production) when S3_BUCKET is configured
-  - a local folder (development) otherwise
-
-The API and the worker run as separate processes (separate containers in
-production), so they cannot share a local disk. That's why production
-must use the bucket: the API uploads, the worker downloads.
-"""
-
 import shutil
 from functools import lru_cache
 from pathlib import Path
@@ -40,7 +28,6 @@ def save_file(
 ) -> None:
 
     if using_bucket():
-        # upload_file does multipart upload automatically for big files.
         _s3_client().upload_file(
             source_path,
             config.S3_BUCKET,
@@ -94,7 +81,6 @@ def get_download_url(
     storage_key: str,
     expires_in: int = 3600,
 ) -> str:
-    """Temporary URL the browser can use to play the original audio."""
 
     return _s3_client().generate_presigned_url(
         "get_object",

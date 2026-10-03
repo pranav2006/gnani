@@ -8,8 +8,7 @@ import { type Segment, type UploadDetail, formatDuration } from "@/lib/api";
 
 type Tab = "transcript" | "summary";
 
-// Gnani returns short segments (a few seconds each). Group them into
-// readable passages of roughly 30 seconds.
+// ~30 s passages
 function groupSegments(segments: Segment[]) {
   const blocks: { start: number; end: number; items: { segment: Segment; index: number }[] }[] = [];
   segments.forEach((segment, index) => {
@@ -80,8 +79,6 @@ export default function ResultsPanel({
 }) {
   const [tab, setTab] = useState<Tab>("transcript");
   const [query, setQuery] = useState("");
-  // Only flag the Summary tab if the summary arrived while the page was
-  // open (not when reopening an upload that finished long ago).
   const [hadSummaryOnLoad] = useState(() => !!upload.summary);
   const [seenSummary, setSeenSummary] = useState(false);
   const activeRef = useRef<HTMLDivElement>(null);
@@ -100,7 +97,6 @@ export default function ResultsPanel({
 
   const activeBlock = blocks.findIndex((b) => b.items.some(({ index }) => index === activeIndex));
 
-  // Keep the passage being played in view (only when it changes).
   useEffect(() => {
     if (activeBlock >= 0 && !q) activeRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [activeBlock, q]);

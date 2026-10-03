@@ -15,7 +15,6 @@ const TABS = [
 
 type Health = "checking" | "online" | "offline";
 
-// Real health check against the backend, so the pill tells the truth.
 function useApiHealth(): Health {
   const [health, setHealth] = useState<Health>("checking");
 
@@ -106,7 +105,6 @@ function AccountMenu() {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Close the dropdown when clicking anywhere else.
   useEffect(() => {
     if (!open) return;
     const onClick = (e: MouseEvent) => {

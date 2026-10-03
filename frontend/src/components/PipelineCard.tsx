@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertIcon, CheckIcon, RetryIcon } from "./Icons";
 import { type UploadDetail, formatDuration, isTerminal, parseServerDate } from "@/lib/api";
 
-// These ranges mirror PREPROCESS/TRANSCRIBE/SUMMARIZE_RANGE in the
-// worker (backend/app/worker/tasks.py), so one overall 0-100 progress
-// number can be shown as three per-stage bars.
+// mirrors worker ranges
 const STAGES = [
   { key: "PREPROCESSING", label: "Prepare", range: [2, 15] },
   { key: "TRANSCRIBING", label: "Transcribe", range: [15, 85] },
@@ -19,8 +17,6 @@ function stageIndex(upload: UploadDetail): number {
   if (upload.status === "COMPLETED") return STAGES.length;
   if (upload.status === "QUEUED") return 0;
   if (upload.status === "FAILED") {
-    // stage_detail is "Failed while <status>"; a saved transcript means
-    // only the summary step failed.
     if (upload.transcript) return 2;
     const found = STAGES.findIndex((s) => upload.stage_detail?.toUpperCase().includes(s.key));
     return found === -1 ? 0 : found;

@@ -1,33 +1,17 @@
-"""
-Audio inspection and preprocessing with ffmpeg / ffprobe.
-
-Why we preprocess before sending to Gnani:
-  - Gnani's batch API accepts at most 10 MB per uploaded file. A 1 hour
-    WAV is ~600 MB, so we cannot send the original as-is.
-  - Gnani resamples everything to 16 kHz mono internally, so converting
-    to 16 kHz mono ourselves loses nothing the ASR would have used.
-  - At 16 kHz mono, 32 kbps MP3 a 10 minute chunk is ~2.4 MB, safely
-    under the limit. All chunks go into ONE batch job (max 100 files),
-    which Gnani can process in parallel.
-  - Running ffmpeg over the whole file also catches corrupted audio
-    early, with a clear error, instead of a vague failure at Gnani.
-"""
-
 import json
 import subprocess
 from pathlib import Path
 
 
 CHUNK_SECONDS = 600
-MAX_CHUNKS = 100  # Gnani: max 100 files per batch job.
+MAX_CHUNKS = 100
 
 
 class AudioError(Exception):
-    """The file is not usable audio (corrupted, empty, not audio...)."""
+    """Unusable audio."""
 
 
 def probe_duration(path: str) -> float:
-    """Return duration in seconds, or raise AudioError if unreadable."""
 
     try:
         result = subprocess.run(
@@ -72,14 +56,6 @@ def split_into_chunks(
     source_path: str,
     output_dir: str,
 ) -> list[dict]:
-    """
-    Convert to 16 kHz mono MP3 and cut into CHUNK_SECONDS pieces in a
-    single ffmpeg pass.
-
-    Returns [{"path", "name", "offset", "duration"}, ...] in order.
-    "offset" is where the chunk starts in the original audio; we need it
-    to turn chunk-relative timestamps back into file-relative ones.
-    """
 
     out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -92,9 +68,9 @@ def split_into_chunks(
             "-loglevel", "error",
             "-y",
             "-i", source_path,
-            "-vn",                 # drop any video / cover art
-            "-ac", "1",            # mono
-            "-ar", "16000",        # 16 kHz
+            "-vn",
+            "-ac", "1",
+            "-ar", "16000",
             "-c:a", "libmp3lame",
             "-b:a", "32k",
             "-f", "segment",
@@ -136,8 +112,7 @@ def split_into_chunks(
             "duration": duration,
         })
 
-        # Use the real measured duration, not CHUNK_SECONDS, so
-        # timestamps stay accurate even if ffmpeg cut slightly off.
+        # measured, not assumed
         offset += duration
 
     return chunks

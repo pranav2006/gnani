@@ -11,7 +11,7 @@ import { ALLOWED_EXTENSIONS, ApiError, LANGUAGES, MAX_UPLOAD_MB, formatBytes, fo
 type Phase =
   | { kind: "idle" }
   | { kind: "uploading"; fraction: number; bytesPerSecond: number }
-  | { kind: "processing" } // bytes sent, server is validating + saving to bucket
+  | { kind: "processing" }
   | { kind: "error"; message: string; limitReached?: boolean };
 
 function validate(file: File): string | null {
@@ -60,7 +60,7 @@ export default function UploadForm({ compact = false }: { compact?: boolean }) {
 
     try {
       const upload = await promise;
-      refreshUser(); // update the "x / 10 uploads" counter
+      refreshUser();
       router.push(`/uploads/${upload.id}`);
     } catch (e) {
       const limitReached = e instanceof ApiError && e.status === 402;

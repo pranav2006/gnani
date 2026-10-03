@@ -1,6 +1,3 @@
-// Equalizer-style bars. When `active`, each bar bounces with a
-// staggered delay; otherwise they sit still at fixed heights.
-
 const HEIGHTS = [0.45, 0.8, 0.6, 1, 0.7, 0.9, 0.5, 0.75, 0.55, 0.95, 0.65, 0.4];
 
 export default function Waveform({

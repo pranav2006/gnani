@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# Stops what start.sh started. Pass --all to also stop Postgres + Redis
-# (their data is kept in the docker volume either way).
 
 set -uo pipefail
 
@@ -11,8 +9,7 @@ is_windows() {
   case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) return 0 ;; *) return 1 ;; esac
 }
 
-# npm/uvicorn --reload/celery spawn child processes, so kill the whole
-# process tree, not just the parent pid.
+# kills child processes too
 kill_tree() {
   local pid="$1"
   if is_windows; then

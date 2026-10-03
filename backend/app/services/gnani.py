@@ -1,13 +1,3 @@
-"""
-Client for Gnani's Batch STT API (https://api.vachana.ai/stt/v3/batch).
-
-Flow: create job (upload files) -> start job -> poll status -> list
-files -> download each transcript JSON from its pre-signed URL.
-
-We use the batch API rather than the sync REST endpoint because REST is
-capped at 60 seconds of audio per request.
-"""
-
 import json
 import os
 import time
@@ -21,7 +11,6 @@ from app import config
 
 GNANI_BASE_URL = "https://api.vachana.ai"
 
-# Job statuses from the Gnani docs.
 JOB_SUCCESS = "COMPLETED"
 JOB_FAILED_STATUSES = {
     "FAILED",
@@ -36,10 +25,7 @@ class GnaniError(Exception):
 
 
 def _build_session() -> requests.Session:
-    # Retry transient errors (429 rate limit, 5xx) with backoff.
-    # urllib3 only retries idempotent methods by default, so the
-    # "create job" POST is never retried automatically - retrying it
-    # could create a duplicate job and spend credits twice.
+    # POSTs never auto-retried
     retry = Retry(
         total=4,
         backoff_factor=2,
@@ -77,7 +63,6 @@ def create_batch_job(
     audio_paths: list[str],
     language_code: str = "en-IN",
 ) -> str:
-    """Upload all chunk files into one job. Returns the job_id."""
 
     url = f"{GNANI_BASE_URL}/stt/v3/batch/jobs"
 
@@ -92,8 +77,6 @@ def create_batch_job(
     open_files = [open(path, "rb") for path in audio_paths]
 
     try:
-        # Multipart form: one "config" part + one repeated "files" part
-        # per chunk. A list of tuples allows the repeated field name.
         multipart_payload = [
             ("config", (None, json.dumps(job_config), "application/json")),
         ]
@@ -125,9 +108,7 @@ def create_batch_job(
 def start_batch_job(job_id: str, attempts: int = 6) -> dict:
     url = f"{GNANI_BASE_URL}/stt/v3/batch/jobs/{job_id}/start"
 
-    # Unlike "create", starting the same job again doesn't create
-    # anything new, so it is safe to retry. Gnani rate limits a start
-    # that comes right after a create, so this retry is needed in practice.
+    # start is safe to retry
     for attempt in range(attempts):
         response = _session.post(
             url,
@@ -146,11 +127,6 @@ def start_batch_job(job_id: str, attempts: int = 6) -> dict:
 
 
 def get_batch_status(job_id: str) -> dict:
-    """
-    Returns the job JSON, including:
-      status, cancel_reason,
-      progress: {total_files, completed_files, failed_files, ...}
-    """
 
     url = f"{GNANI_BASE_URL}/stt/v3/batch/jobs/{job_id}"
 
@@ -164,7 +140,6 @@ def get_batch_status(job_id: str) -> dict:
 
 
 def get_job_files(job_id: str) -> list[dict]:
-    """All file results of a job (follows pagination)."""
 
     url = f"{GNANI_BASE_URL}/stt/v3/batch/jobs/{job_id}/files"
     files = []
@@ -194,12 +169,6 @@ def get_job_files(job_id: str) -> list[dict]:
 
 
 def download_transcript(transcript_url: str) -> dict:
-    """
-    Transcript JSON: {full_transcript, duration_seconds,
-    segments: [{start_time, end_time, text, ...}]}
-    The URL is pre-signed and expires after 1 hour.
-    """
 
-    # No auth header: it's a pre-signed S3 URL.
     response = _session.get(transcript_url, timeout=60)
     return _check(response, "download transcript")

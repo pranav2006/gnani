@@ -5,11 +5,11 @@ import { type User, clearToken, getMe, getToken, login as apiLogin, register as 
 
 interface AuthState {
   user: User | null;
-  loading: boolean; // true until we know whether a stored token is valid
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  refreshUser: () => Promise<void>; // re-fetch usage after an upload
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -26,12 +26,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setUser(await getMe());
     } catch {
-      // A 401 already cleared the token via the "auth:logout" event.
-      // Network errors keep the current state.
+      // keep current state
     }
   }, []);
 
-  // On first load, turn a stored token back into a user (or drop it).
   useEffect(() => {
     let cancelled = false;
 
@@ -48,7 +46,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Any API call that gets a 401 (expired/invalid token) logs us out.
   useEffect(() => {
     const onLogout = () => setUser(null);
     window.addEventListener("auth:logout", onLogout);

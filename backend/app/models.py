@@ -19,8 +19,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 from app.database import Base
 
 
-# Lifecycle of an upload. The worker moves a row forward through these;
-# any stage can jump to FAILED with error_message filled in.
 QUEUED = "QUEUED"
 PREPROCESSING = "PREPROCESSING"
 TRANSCRIBING = "TRANSCRIBING"
@@ -30,7 +28,6 @@ FAILED = "FAILED"
 
 TERMINAL_STATUSES = {COMPLETED, FAILED}
 
-# Subscription plans.
 PLAN_FREE = "free"
 PLAN_PRO = "pro"
 
@@ -45,7 +42,6 @@ class User(Base):
         default=uuid.uuid4,
     )
 
-    # Stored lower-cased so "A@x.com" and "a@x.com" are one account.
     email: Mapped[str] = mapped_column(
         String(255),
         unique=True,
@@ -53,7 +49,6 @@ class User(Base):
         nullable=False,
     )
 
-    # bcrypt hash (includes its own salt). The password itself is never stored.
     password_hash: Mapped[str] = mapped_column(
         String(255),
         nullable=False,
@@ -81,8 +76,6 @@ class AudioUpload(Base):
         default=uuid.uuid4,
     )
 
-    # Nullable only because uploads made before accounts existed have no
-    # owner; every new upload sets it. Ownerless rows are visible to no one.
     user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -121,7 +114,6 @@ class AudioUpload(Base):
         nullable=True,
     )
 
-    # How many pieces the audio was split into before sending to Gnani.
     chunk_count: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
@@ -133,15 +125,12 @@ class AudioUpload(Base):
         nullable=False,
     )
 
-    # 0-100, shown as the progress bar in the UI.
     progress: Mapped[int] = mapped_column(
         Integer,
         default=0,
         nullable=False,
     )
 
-    # Human readable description of what is happening right now,
-    # e.g. "Gnani transcribed 3 of 7 chunks".
     stage_detail: Mapped[str | None] = mapped_column(
         String(500),
         nullable=True,
@@ -152,8 +141,6 @@ class AudioUpload(Base):
         nullable=True,
     )
 
-    # [{"start": float, "end": float, "text": str}, ...] with timestamps
-    # relative to the start of the original file (not the chunk).
     segments: Mapped[list | None] = mapped_column(
         JSONB,
         nullable=True,

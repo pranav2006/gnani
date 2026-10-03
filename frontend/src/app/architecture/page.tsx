@@ -6,7 +6,6 @@ import { API_URL, GITHUB_URL } from "@/lib/api";
 
 export const metadata: Metadata = { title: "Architecture · AudioNotes" };
 
-// Real numbers from the code, not benchmarks.
 const STATS = [
   { label: "Chunk size", value: "10 min", note: "~2.4 MB each at 16 kHz mono, 32 kbps (Gnani limit: 10 MB per file)" },
   { label: "Max per upload", value: "100 chunks", note: "One Gnani batch job, so ~16 h of audio" },

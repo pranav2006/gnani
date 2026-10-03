@@ -54,10 +54,6 @@ export interface AuthResponse {
   user: User;
 }
 
-// --- Login token ---------------------------------------------------------
-// Kept in localStorage so it survives reloads. Any 401 from the API clears
-// it and fires "auth:logout", which AuthProvider listens for.
-
 const TOKEN_KEY = "audionotes_token";
 
 export function getToken(): string | null {
@@ -76,7 +72,7 @@ export function clearToken() {
   try {
     localStorage.removeItem(TOKEN_KEY);
   } catch {
-    // ignore
+    // storage blocked
   }
 }
 
@@ -85,7 +81,6 @@ function handleUnauthorized() {
   window.dispatchEvent(new Event("auth:logout"));
 }
 
-/** Error that also carries the HTTP status (e.g. 402 = upload limit). */
 export class ApiError extends Error {
   constructor(message: string, public status: number) {
     super(message);
@@ -114,7 +109,6 @@ export function isTerminal(status: UploadStatus) {
   return status === "COMPLETED" || status === "FAILED";
 }
 
-// FastAPI errors look like {"detail": "..."} (or a list for validation).
 async function errorMessage(response: Response): Promise<string> {
   try {
     const body = await response.json();
@@ -137,7 +131,6 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   } catch {
     throw new Error("Cannot reach the server. Check your connection.");
   }
-  // A 401 on login itself just means wrong credentials, not a dead session.
   if (response.status === 401 && token && !path.startsWith("/auth/login")) handleUnauthorized();
   if (!response.ok) throw new ApiError(await errorMessage(response), response.status);
   return response.json();
@@ -167,15 +160,11 @@ export const getUpload = (id: string) => request<UploadDetail>(`/uploads/${id}`)
 export const retryUpload = (id: string) =>
   request<UploadDetail>(`/uploads/${id}/retry`, { method: "POST" });
 
-// <audio src> can't send an Authorization header, so the token goes in
-// the query string for this one endpoint.
+// <audio> can't send headers
 export const audioUrl = (id: string) =>
   `${API_URL}/uploads/${id}/audio?token=${encodeURIComponent(getToken() ?? "")}`;
 
-/**
- * Upload with XMLHttpRequest because fetch() has no upload progress
- * events. onProgress gets 0..1 for the bytes sent to our API.
- */
+// XHR for upload progress
 export function uploadFile(
   file: File,
   languageCode: string,
@@ -238,7 +227,6 @@ export function formatBytes(bytes: number | null | undefined) {
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
 
-// Backend stores naive UTC datetimes; tell the browser they are UTC.
 export function parseServerDate(value: string) {
   return new Date(/[zZ]|[+-]\d\d:\d\d$/.test(value) ? value : `${value}Z`);
 }

@@ -1,7 +1,5 @@
 import type { SVGProps } from "react";
 
-// Small inline icon set (stroke icons, 24x24 grid) so we don't pull in
-// an icon library for a dozen glyphs.
 type IconProps = SVGProps<SVGSVGElement>;
 
 function Icon({ children, ...props }: IconProps) {

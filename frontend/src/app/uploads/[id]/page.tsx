@@ -32,13 +32,12 @@ function UploadView() {
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // Poll the backend until the upload reaches COMPLETED or FAILED.
-  // Network errors don't stop polling; we show a banner and back off.
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout>;
     let failures = 0;
 
+    // poll until finished
     async function poll() {
       try {
         const data = await getUpload(id);
@@ -56,7 +55,7 @@ function UploadView() {
         }
         failures += 1;
         setConnectionLost(true);
-        setLoadError(message); // only shown if we never loaded the upload
+        setLoadError(message);
         timer = setTimeout(poll, Math.min(POLL_MS * 2 ** failures, 30000));
       }
     }

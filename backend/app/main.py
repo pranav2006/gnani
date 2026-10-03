@@ -8,13 +8,9 @@ from app.api.auth import router as auth_router
 from app.api.uploads import router as uploads_router
 
 
-# Creates tables that don't exist yet. Fine for a small project; with
-# schema changes over time this should become Alembic migrations.
 Base.metadata.create_all(bind=engine)
 
-# create_all never alters existing tables, so the column added with user
-# accounts has to be added by hand on databases created before it.
-# IF NOT EXISTS makes this safe to run on every start.
+# migrate old table
 with engine.begin() as connection:
     connection.execute(text(
         "ALTER TABLE audio_uploads "

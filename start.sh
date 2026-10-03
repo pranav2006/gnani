@@ -1,7 +1,4 @@
 #!/usr/bin/env bash
-# Starts everything for local development:
-#   Postgres + Redis (docker compose), FastAPI, Celery worker, Next.js.
-# Logs go to .run/logs/, process ids to .run/pids/. Stop with ./stop.sh
 
 set -euo pipefail
 
@@ -22,7 +19,6 @@ is_running() {
   [[ -f "$pid_file" ]] && kill -0 "$(cat "$pid_file")" 2>/dev/null
 }
 
-# start_service <name> <directory> <command...>
 start_service() {
   local name="$1" dir="$2"
   shift 2
@@ -37,7 +33,6 @@ start_service() {
   echo "  $name started (log: .run/logs/$name.log)"
 }
 
-# wait_for <description> <seconds> <command...>
 wait_for() {
   local what="$1" seconds="$2"
   shift 2
@@ -66,15 +61,14 @@ if [[ ! -d "$ROOT/frontend/node_modules" ]]; then
   (cd "$ROOT/frontend" && npm install)
 fi
 
-# The prefork pool doesn't work on Windows; use the single-process pool.
+# Windows needs solo pool
 CELERY_POOL=()
 if is_windows; then CELERY_POOL=(--pool=solo); fi
 
 echo "Starting app processes..."
 start_service api "$ROOT/backend" "$PYTHON" -m uvicorn app.main:app --port 8000 --reload
 start_service worker "$ROOT/backend" "$PYTHON" -m celery -A app.worker.celery_app worker --loglevel=info "${CELERY_POOL[@]}"
-# Run next directly rather than through "npm run dev": on Git Bash npm is
-# a wrapper script, so its pid is not the server and stop.sh would miss it.
+# not npm: pid tracking
 start_service frontend "$ROOT/frontend" node node_modules/next/dist/bin/next dev
 
 wait_for "API (see .run/logs/api.log)" 60 curl -sf http://localhost:8000/health

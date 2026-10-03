@@ -36,7 +36,6 @@ export default function UploadList() {
         if (cancelled) return;
         setUploads(data);
         setError(null);
-        // Keep refreshing only while something is still in progress.
         if (data.some((u) => !isTerminal(u.status))) timer = setTimeout(load, 4000);
       } catch (e) {
         if (cancelled) return;

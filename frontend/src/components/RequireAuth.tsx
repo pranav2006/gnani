@@ -4,9 +4,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "./AuthProvider";
 
-// Client-side guard: sends logged-out visitors to /login and brings them
-// back afterwards. The real protection is the API, which rejects every
-// request without a valid token; this just keeps the UI sensible.
 export default function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const router = useRouter();

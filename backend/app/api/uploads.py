@@ -30,7 +30,6 @@ ALLOWED_EXTENSIONS = {
     ".flac", ".webm", ".mp4", ".amr",
 }
 
-# Batch STT languages from Gnani's docs.
 ALLOWED_LANGUAGES = {
     "en-IN", "hi-IN", "bn-IN", "kn-IN",
     "ml-IN", "mr-IN", "ta-IN", "te-IN",
@@ -63,8 +62,7 @@ class UploadDetail(UploadSummary):
 
 
 def _safe_filename(name: str | None) -> str:
-    # Never trust a client filename: strip directories (path traversal)
-    # and anything that isn't a plain filename character.
+    # path traversal guard
     base = Path(name or "audio").name
     cleaned = re.sub(r"[^A-Za-z0-9._ -]", "_", base).strip() or "audio"
     return cleaned[:200]
@@ -73,8 +71,7 @@ def _safe_filename(name: str | None) -> str:
 def _get_upload_or_404(db: Session, upload_id: uuid.UUID, user: User) -> AudioUpload:
     upload = db.get(AudioUpload, upload_id)
 
-    # Someone else's upload gets the same 404 as a missing one, so ids
-    # can't be probed to learn what exists.
+    # hide others' uploads
     if upload is None or upload.user_id != user.id:
         raise HTTPException(status_code=404, detail="Upload not found.")
 
@@ -88,13 +85,10 @@ def _check_quota(db: Session, user: User, lock: bool = False) -> None:
         return
 
     if lock:
-        # Lock this user's row until the transaction commits, so two
-        # uploads sent at the same moment can't both pass the count
-        # check and go over the limit.
+        # prevents quota race
         db.execute(select(User.id).where(User.id == user.id).with_for_update())
 
     if count_uploads(db, user) >= limit:
-        # 402 Payment Required: the frontend shows the upgrade prompt.
         raise HTTPException(
             status_code=402,
             detail=(
@@ -108,7 +102,6 @@ def _enqueue(db: Session, upload: AudioUpload) -> None:
     try:
         process_audio.delay(str(upload.id))
     except Exception as e:
-        # Queue (Redis) is down: don't leave the row stuck in QUEUED.
         upload.status = models.FAILED
         upload.error_message = f"Could not queue the job for processing: {e}"
         db.commit()
@@ -118,9 +111,7 @@ def _enqueue(db: Session, upload: AudioUpload) -> None:
         )
 
 
-# A plain "def" (not async): ffprobe, the bucket upload and the DB calls
-# are all blocking, so FastAPI runs this in its threadpool instead of
-# blocking the event loop for every other request.
+# sync def: blocking I/O
 @router.post("/", response_model=UploadDetail, status_code=201)
 def create_upload(
     file: UploadFile = File(...),
@@ -128,8 +119,6 @@ def create_upload(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # Fail fast before receiving a possibly huge file. Checked again
-    # under a lock just before the row is inserted.
     _check_quota(db, user)
 
     filename = _safe_filename(file.filename)
@@ -153,10 +142,9 @@ def create_upload(
     with tempfile.TemporaryDirectory() as temp_dir:
         temp_path = Path(temp_dir) / f"upload{extension}"
 
-        # Stream to disk in 1 MB pieces instead of reading the whole
-        # file into memory, and stop early if it is too large.
         size = 0
         with open(temp_path, "wb") as buffer:
+            # streamed, not buffered
             while piece := file.file.read(READ_CHUNK_BYTES):
                 size += len(piece)
                 if size > max_bytes:
@@ -169,9 +157,6 @@ def create_upload(
         if size == 0:
             raise HTTPException(status_code=400, detail="The file is empty.")
 
-        # Quick synchronous check (ffprobe reads only the header, so it
-        # takes milliseconds) so obviously broken files are rejected
-        # immediately instead of failing later in the background.
         try:
             duration = audio.probe_duration(str(temp_path))
         except audio.AudioError as e:
@@ -242,7 +227,6 @@ def retry_upload(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    # A retry re-processes an existing upload, so it doesn't use quota.
     upload = _get_upload_or_404(db, upload_id, user)
 
     if upload.status != models.FAILED:
@@ -251,12 +235,10 @@ def retry_upload(
             detail="Only failed uploads can be retried.",
         )
 
+    # summary-only retry
     if upload.transcript:
-        # Transcription worked, only the summary failed: the worker
-        # will skip Gnani and just redo the summary.
         detail = "Queued: retrying the summary"
     else:
-        # The previous Gnani job (if any) failed; start a fresh one.
         upload.gnani_job_id = None
         detail = "Queued: retrying transcription"
 
@@ -281,7 +263,6 @@ def get_audio(
     upload = _get_upload_or_404(db, upload_id, user)
 
     if storage.using_bucket():
-        # Let the browser stream straight from the bucket.
         return RedirectResponse(storage.get_download_url(upload.storage_key))
 
     path = storage.get_local_path(upload.storage_key)

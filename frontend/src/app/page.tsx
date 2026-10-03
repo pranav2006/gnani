@@ -88,7 +88,6 @@ function ProductPreview() {
 export default function LandingPage() {
   return (
     <div className="space-y-20 pb-8 sm:space-y-28">
-      {/* Hero */}
       <section className="grid items-center gap-12 pt-4 lg:grid-cols-2 lg:pt-10">
         <div className="animate-fade-up">
           <span className="inline-flex items-center gap-2 rounded-full border border-brand-100 bg-white px-3 py-1 font-mono text-[11px] text-brand-700">
@@ -109,7 +108,6 @@ export default function LandingPage() {
         <ProductPreview />
       </section>
 
-      {/* How it works */}
       <section>
         <p className="text-center font-mono text-[11px] uppercase tracking-wider text-brand-600">How it works</p>
         <h2 className="mt-2 text-center text-3xl font-bold tracking-tight">From audio file to notes in four steps</h2>
@@ -128,7 +126,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Features */}
       <section>
         <p className="text-center font-mono text-[11px] uppercase tracking-wider text-brand-600">Features</p>
         <h2 className="mt-2 text-center text-3xl font-bold tracking-tight">Built for long, real-world recordings</h2>
@@ -148,7 +145,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Languages */}
       <section className="rounded-2xl border border-neutral-200/80 bg-white px-6 py-10 text-center shadow-sm">
         <h2 className="text-2xl font-bold tracking-tight">Speaks your language</h2>
         <p className="mt-2 text-neutral-600">Transcription in English and seven Indian languages.</p>
@@ -161,7 +157,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Pricing teaser */}
       <section className="grid gap-4 md:grid-cols-2">
         <div className="rounded-2xl border border-neutral-200/80 bg-white p-6 shadow-sm">
           <p className="font-mono text-[11px] uppercase tracking-wider text-neutral-500">Free</p>
@@ -182,7 +177,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Final call to action */}
       <section className="relative overflow-hidden rounded-3xl bg-ink px-6 py-14 text-center text-white">
         <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center opacity-20">
           <Waveform bars={40} className="h-24" color="bg-brand-500" />

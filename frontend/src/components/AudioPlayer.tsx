@@ -6,11 +6,6 @@ import Waveform from "./Waveform";
 import { BackIcon, ForwardIcon, PauseIcon, PlayIcon } from "./Icons";
 import { LANGUAGES, type UploadDetail, audioUrl, formatBytes, formatDuration, isTerminal } from "@/lib/api";
 
-/**
- * File card + custom controls around a hidden <audio> element. The
- * parent owns the audio ref so the transcript can seek it, and receives
- * the current playback time to highlight the active segment.
- */
 export default function AudioPlayer({
   upload,
   audioRef,
